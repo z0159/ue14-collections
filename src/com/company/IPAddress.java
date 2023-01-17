@@ -7,7 +7,7 @@ package com.company;
 import java.util.Objects;
 import java.util.Set;
 
-public class IPAddress {
+public class IPAddress implements Comparable<IPAddress> {
 
     /**
      * ip as integer
@@ -105,5 +105,10 @@ public class IPAddress {
     @Override
     public int hashCode() {
         return Objects.hash(ip);
+    }
+
+    @Override
+    public int compareTo(IPAddress other) {
+        return Integer.compare(this.ip, other.ip);
     }
 }
