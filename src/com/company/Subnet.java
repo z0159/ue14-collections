@@ -4,6 +4,9 @@
 
 package com.company;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Subnet {
 
     /**
@@ -17,16 +20,17 @@ public class Subnet {
 
     /**
      * create netmask from network ip and number of bits
-     * @param net     network address
-     * @param cidr    number of bits
+     *
+     * @param net  network address
+     * @param cidr number of bits
      */
     public Subnet(IPAddress net, int cidr) {
         createMask(net, cidr);
     }
 
     private void createMask(IPAddress net, int cidr) {
-        this.net = net;
-        this.mask = IPAddress.createNetmask(cidr);
+        this.net=net;
+        this.mask=IPAddress.createNetmask(cidr);
         // System.out.format("n %08x\n", this.net.getIP() & 0xffffffffl);
         // System.out.format("m %08x\n", this.mask.getIP());
         // System.out.format(" %08x\n", (this.net.getIP() & mask.getIP()));
@@ -38,6 +42,7 @@ public class Subnet {
 
     /**
      * create netmask from ip (four number) and number of bits
+     *
      * @param a3
      * @param a2
      * @param a1
@@ -49,12 +54,12 @@ public class Subnet {
     }
 
     public Subnet(String mask) {
-        String[] parts = mask.split("/");
+        String[] parts=mask.split("/");
         if (parts.length != 2) {
             throw new IllegalArgumentException("ill formed subnet");
         }
-        IPAddress ip = new IPAddress(parts[0]);
-        int cidr = Integer.parseInt(parts[1]);
+        IPAddress ip=new IPAddress(parts[0]);
+        int cidr=Integer.parseInt(parts[1]);
         createMask(ip, cidr);
     }
 
@@ -67,11 +72,12 @@ public class Subnet {
     }
 
     public IPAddress getBroadcast() {
-        return new IPAddress( net.getIP() + ~mask.getIP() );
+        return new IPAddress(net.getIP()+~mask.getIP());
     }
 
     /**
      * is IP in this network
+     *
      * @param ip
      * @return
      */
@@ -86,6 +92,30 @@ public class Subnet {
 
     @Override
     public String toString() {
-        return "Subnet [net=" + net + ", mask=" + mask + "]";
+        return "Subnet [net="+net+", mask="+mask+"]";
     }
+
+    public static void testFullSubnet(Subnet subnet, Set<IPAddress> set) {
+        IPAddress net = subnet.getNet();
+        IPAddress mask = subnet.getMask();
+        IPAddress broadcast = new IPAddress( net.getIP() + ~mask.getIP() );
+
+        long startTime = System.nanoTime();
+        for (int i = net.getIP(); i <= broadcast.getIP(); i++) {
+            set.add(new IPAddress(i));
+        }
+        long endTime = System.nanoTime();
+        System.out.println("Zeit für das Eintragen: " + (endTime - startTime) + " ns");
+
+        startTime = System.nanoTime();
+        for (int i = net.getIP(); i <= broadcast.getIP(); i++) {
+            IPAddress ip = new IPAddress(i);
+            if (!subnet.contains(ip) || !set.contains(ip)) {
+                System.out.println("Error: IPAddresse nicht im Set: " + ip);
+            }
+        }
+        endTime = System.nanoTime();
+        System.out.println("Zeit für das Testen für alle IPAdressen im Subnet: " + (endTime - startTime) + " ns");
+    }
+
 }
