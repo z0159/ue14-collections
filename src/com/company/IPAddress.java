@@ -94,6 +94,11 @@ public class IPAddress implements Comparable<IPAddress> {
         }
     }
 
+    /**
+     * schaut nach ob die IPs gleich sind
+     * @param o
+     * @return ip
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -111,4 +116,6 @@ public class IPAddress implements Comparable<IPAddress> {
     public int compareTo(IPAddress other) {
         return Integer.compare(this.ip, other.ip);
     }
+
+
 }

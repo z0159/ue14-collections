@@ -4,8 +4,7 @@
 
 package com.company;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Subnet {
 
@@ -118,4 +117,49 @@ public class Subnet {
         System.out.println("Zeit für das Testen für alle IPAdressen im Subnet: " + (endTime - startTime) + " ns");
     }
 
+    public static void testNextHop(Map<Subnet, IPAddress> nextHop) {
+        nextHop.put(new Subnet(new IPAddress("10.0.0.0"), 8), new IPAddress("10.0.0.1"));
+        nextHop.put(new Subnet(new IPAddress("172.16.0.0"), 16), new IPAddress("172.16.0.1"));
+        nextHop.put(new Subnet(new IPAddress("192.168.2.0"), 24), new IPAddress("192.168.2.1"));
+
+        for (Map.Entry<Subnet, IPAddress> entry : nextHop.entrySet()) {
+            System.out.println(entry.getKey() + " => " + entry.getValue());
+        }
+
+        Subnet knownNetwork = new Subnet(new IPAddress("10.0.0.0"), 8);
+        Subnet unknownNetwork = new Subnet(new IPAddress("100.0.0.0"), 8);
+        System.out.println("Next hop for " + knownNetwork + ": " + nextHop.get(knownNetwork));
+        System.out.println("Next hop for " + unknownNetwork + ": " + nextHop.get(unknownNetwork));
+    }
+
+    public IPAddress getNetworkAddress() {
+        return new IPAddress(net.getIP() & mask.getIP());
+    }
+
+    /**
+     * Main TreeMap
+     * @param args
+     */
+    public static void main(String[] args) {
+        TreeMap<Subnet, IPAddress> nextHopT = new TreeMap<>(new MySubnetComparator());
+        testNextHop(nextHopT);
+
+        TreeMap<Subnet, IPAddress> nextHopT2 = new TreeMap<>(new Comparator<Subnet>() {
+            @Override
+            public int compare(Subnet s1, Subnet s2) {
+                return s1.getNetworkAddress().compareTo(s2.getNetworkAddress());
+            }
+        });
+        testNextHop(nextHopT2);
+
+        HashMap<Subnet, IPAddress> nextHopH = new HashMap<>();
+        testNextHop(nextHopH);
+    }
+
+    static class MySubnetComparator implements Comparator<Subnet> {
+        @Override
+        public int compare(Subnet s1, Subnet s2) {
+            return s1.getNetworkAddress().compareTo(s2.getNetworkAddress());
+        }
+    }
 }
